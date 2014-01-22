@@ -1,0 +1,30 @@
+server {
+    set $website_name "<%= @name %>"
+    set $yii_bootstrap "index.php";
+    
+    charset utf-8;
+    client_max_body_size 128M;
+
+    listen 80; ## listen for ipv4
+
+    server_name $website_name.c24.local $website_name.conctact24.local;
+    root        /var/www/contact24/$website_name/web;
+    index       $yii_bootstrap;
+
+    access_log  /var/log/nginx/contact24/$website_name.access.log combined;
+    error_log   /var/log/nginx/contact24/$website_name.error.log;
+
+    location / {
+        # Redirect everything that isn't real file to yii bootstrap file including arguments.
+        try_files $uri $uri/ /$yii_bootstrap?$args;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+    }
+
+    location ~ /\.(ht|svn|git|hg) {
+        deny all;
+    }
+}
